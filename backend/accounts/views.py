@@ -1,5 +1,4 @@
 import logging
-from threading import Thread
 
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
@@ -27,17 +26,14 @@ logger = logging.getLogger(__name__)
 
 
 def _send_reset_email(recipient_email: str, text_body: str, html_body: str) -> None:
-    try:
-        send_mail(
-            subject='VocabTrainer password reset',
-            message=text_body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[recipient_email],
-            fail_silently=False,
-            html_message=html_body,
-        )
-    except Exception:
-        logger.exception('Failed to send reset password email.')
+    send_mail(
+        subject='VocabTrainer password reset',
+        message=text_body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[recipient_email],
+        fail_silently=False,
+        html_message=html_body,
+    )
 
 
 class RegisterView(APIView):
@@ -119,15 +115,25 @@ class ForgotPasswordView(APIView):
         reset_link = f"{settings.FRONTEND_URL}/reset-password?uid={uid}&token={token}"
         text_body = f'Parolni tiklash uchun havola: {reset_link}'
         html_body = render_to_string('emails/reset_password.html', {'reset_link': reset_link, 'user': user})
-        Thread(
-            target=_send_reset_email,
-            kwargs={
-                'recipient_email': user.email,
-                'text_body': text_body,
-                'html_body': html_body,
-            },
-            daemon=True,
-        ).start()
+
+        if settings.EMAIL_BACKEND.endswith('console.EmailBackend') and not settings.DEBUG:
+            return Response(
+                {'detail': 'SMTP yoqilmagan. Railway Variables ichida EMAIL_BACKEND ni smtp backendga o‘rnating.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        try:
+            _send_reset_email(
+                recipient_email=user.email,
+                text_body=text_body,
+                html_body=html_body,
+            )
+        except Exception:
+            logger.exception('Failed to send reset password email.')
+            return Response(
+                {'detail': 'Email yuborilmadi. SMTP sozlamasi yoki App Password xato bo‘lishi mumkin.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         return Response({'detail': 'Reset link yuborildi.'})
 
