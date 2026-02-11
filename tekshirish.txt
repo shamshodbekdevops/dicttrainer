@@ -1,0 +1,89 @@
+VocabTrainer - Tekshirish bo'yicha qisqa yo'riqnoma (CMD uchun)
+
+0) Kerakli dasturlar
+- Python 3.10+
+- Node.js 18+
+- PostgreSQL 14+ (va psql klient)
+
+1) Backend ishga tushirish (CMD)
+1.1) Loyihaga kirish:
+cd /d d:\30_Projects\Dictionary_Test\backend
+
+1.2) Virtual environment yaratish va yoqish:
+python -m venv .venv
+.venv\Scripts\activate
+
+1.3) Kutubxonalar:
+pip install -r requirements.txt
+
+1.4) .env fayl tayyorlash:
+- backend\.env fayl yaratib qo'yilgan.
+- Faqat EMAIL_HOST_PASSWORD qiymatini o'zingizning Gmail App Password ga almashtiring.
+
+1.5) Migratsiya:
+python manage.py makemigrations
+python manage.py migrate
+
+1.6) Backend run:
+python manage.py runserver
+
+Backend URL:
+http://127.0.0.1:8000
+
+
+2) DB sozlamalari (password va ulanish)
+Default qiymatlar (.env.example dan):
+- POSTGRES_DB=vocabtrainer
+- POSTGRES_USER=postgres
+- POSTGRES_PASSWORD=1
+- POSTGRES_HOST=localhost
+- POSTGRES_PORT=5432
+
+Agar boshqa password ishlatsangiz, backend\.env ichida POSTGRES_PASSWORD ni o'zgartiring.
+
+
+3) DB ga ulanib tekshirish (CMD)
+3.1) psql bilan to'g'ridan ulanish:
+psql -h localhost -p 5432 -U postgres -d vocabtrainer
+
+Password so'ralsa: postgres (yoki siz qo'ygan password)
+
+3.2) Ulangandan keyin tekshiruv query:
+SELECT current_database(), current_user;
+\dt
+\q
+
+Agar psql topilmasa, PostgreSQL\bin path ni PATH ga qo'shing yoki to'liq yo'l bilan ishga tushiring.
+Misol:
+"C:\Program Files\PostgreSQL\16\bin\psql.exe" -h localhost -p 5432 -U postgres -d vocabtrainer
+
+
+4) Frontend ishga tushirish (CMD)
+4.1) Yangi CMD oching va frontend papkaga kiring:
+cd /d d:\30_Projects\Dictionary_Test\frontend
+
+4.2) Paketlar:
+npm install
+
+4.3) Frontend .env:
+copy .env.example .env
+
+4.4) Frontend run:
+npm run dev
+
+Frontend URL:
+http://localhost:5173
+
+
+5) Tez API tekshiruv (CMD)
+Backend ishlab turganda brauzer yoki Postman orqali tekshiring:
+- POST http://127.0.0.1:8000/auth/register
+- POST http://127.0.0.1:8000/auth/login
+- GET  http://127.0.0.1:8000/words  (Bearer token bilan)
+
+
+6) Eslatma
+- Forgot password hozir Gmail SMTP ga sozlangan.
+- Yuboruvchi email: shamshodbektoshqobilov@gmail.com
+- Ishlashi uchun shart: Gmail App Password kerak (oddiy Gmail parol emas).
+- Agar App Password noto'g'ri bo'lsa, email yuborishda xatolik qaytadi.
