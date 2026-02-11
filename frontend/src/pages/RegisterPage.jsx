@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 
 import PasswordField from "../components/PasswordField"
 import { useAuth } from "../context/AuthContext"
+import { extractApiError } from "../utils/apiError"
 
 function RegisterPage() {
   const [email, setEmail] = useState("")
@@ -23,7 +24,7 @@ function RegisterPage() {
       await register({ email, username, password })
       navigate("/dashboard")
     } catch (err) {
-      setError(err?.response?.data?.detail || "Register failed.")
+      setError(extractApiError(err, "Register failed."))
     } finally {
       setLoading(false)
     }

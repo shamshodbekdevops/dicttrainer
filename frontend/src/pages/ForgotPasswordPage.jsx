@@ -1,6 +1,7 @@
 ﻿import { useState } from "react"
 
 import api from "../api/client"
+import { extractApiError } from "../utils/apiError"
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
@@ -18,7 +19,7 @@ function ForgotPasswordPage() {
       const response = await api.post("/auth/forgot-password", { email })
       setMessage(response.data.detail || "Reset link yuborildi.")
     } catch (err) {
-      setError(err?.response?.data?.detail || "Xatolik yuz berdi.")
+      setError(extractApiError(err, "Xatolik yuz berdi."))
     } finally {
       setLoading(false)
     }

@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 
 import PasswordField from "../components/PasswordField"
 import { useAuth } from "../context/AuthContext"
+import { extractApiError } from "../utils/apiError"
 
 function LoginPage() {
   const [identifier, setIdentifier] = useState("")
@@ -25,7 +26,7 @@ function LoginPage() {
       const target = location.state?.from || fallback
       navigate(target)
     } catch (err) {
-      setError(err?.response?.data?.detail || "Login failed.")
+      setError(extractApiError(err, "Login failed."))
     } finally {
       setLoading(false)
     }

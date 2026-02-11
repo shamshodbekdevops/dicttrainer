@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom"
 
 import api from "../api/client"
 import PasswordField from "../components/PasswordField"
+import { extractApiError } from "../utils/apiError"
 
 function ResetPasswordPage() {
   const [params] = useSearchParams()
@@ -29,7 +30,7 @@ function ResetPasswordPage() {
       setMessage(response.data.detail || "Password updated.")
       setPassword("")
     } catch (err) {
-      setError(err?.response?.data?.detail || "Reset failed.")
+      setError(extractApiError(err, "Reset failed."))
     } finally {
       setLoading(false)
     }
