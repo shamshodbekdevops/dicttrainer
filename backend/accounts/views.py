@@ -27,7 +27,8 @@ logger = logging.getLogger(__name__)
 
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
-    throttle_classes = [RegisterRateThrottle]
+    # throttle_classes = [RegisterRateThrottle]
+    throttle_classes = []
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -46,33 +47,34 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
-    throttle_classes = [LoginRateThrottle]
+    # throttle_classes = [LoginRateThrottle]
+    throttle_classes = []
 
     def post(self, request):
-        identifier = (
-            request.data.get('identifier')
-            or request.data.get('email')
-            or request.data.get('username')
-            or ''
-        )
-        client_ip = get_client_ip(request)
-
-        if is_login_blocked(client_ip, identifier):
-            return Response(
-                {'detail': 'Too many failed attempts. Try again later.'},
-                status=status.HTTP_429_TOO_MANY_REQUESTS,
-            )
+        # identifier = (
+        #     request.data.get('identifier')
+        #     or request.data.get('email')
+        #     or request.data.get('username')
+        #     or ''
+        # )
+        # client_ip = get_client_ip(request)
+        #
+        # if is_login_blocked(client_ip, identifier):
+        #     return Response(
+        #         {'detail': 'Too many failed attempts. Try again later.'},
+        #         status=status.HTTP_429_TOO_MANY_REQUESTS,
+        #     )
 
         serializer = LoginSerializer(data=request.data)
         try:
             serializer.is_valid(raise_exception=True)
         except exceptions.ValidationError:
-            register_failed_login(client_ip, identifier)
+            # register_failed_login(client_ip, identifier)
             return Response({'detail': 'Invalid credentials.'}, status=status.HTTP_401_UNAUTHORIZED)
 
         payload = serializer.validated_data
         user = payload['user']
-        clear_failed_logins(client_ip, identifier)
+        # clear_failed_logins(client_ip, identifier)
         return Response(
             {
                 'user': {'id': user.id, 'email': user.email, 'username': user.username},
@@ -84,7 +86,8 @@ class LoginView(APIView):
 
 class ForgotPasswordView(APIView):
     permission_classes = [permissions.AllowAny]
-    throttle_classes = [ForgotPasswordRateThrottle]
+    # throttle_classes = [ForgotPasswordRateThrottle]
+    throttle_classes = []
 
     def post(self, request):
         serializer = ForgotPasswordSerializer(data=request.data)
@@ -119,7 +122,8 @@ class ForgotPasswordView(APIView):
 
 class ResetPasswordConfirmView(APIView):
     permission_classes = [permissions.AllowAny]
-    throttle_classes = [ResetPasswordRateThrottle]
+    # throttle_classes = [ResetPasswordRateThrottle]
+    throttle_classes = []
 
     def post(self, request):
         serializer = ResetPasswordConfirmSerializer(data=request.data)
