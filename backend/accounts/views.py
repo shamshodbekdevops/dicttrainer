@@ -110,23 +110,26 @@ class ForgotPasswordView(APIView):
 
         email = serializer.validated_data['email']
         user = User.objects.filter(email__iexact=email, is_active=True).first()
-        if user:
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
-            reset_link = f"{settings.FRONTEND_URL}/reset-password?uid={uid}&token={token}"
-            text_body = f'Parolni tiklash uchun havola: {reset_link}'
-            html_body = render_to_string('emails/reset_password.html', {'reset_link': reset_link, 'user': user})
-            Thread(
-                target=_send_reset_email,
-                kwargs={
-                    'recipient_email': user.email,
-                    'text_body': text_body,
-                    'html_body': html_body,
-                },
-                daemon=True,
-            ).start()
+        if not user:
+            # return Response({'detail': 'If this email exists, reset instructions have been sent.'})
+            return Response({'detail': "Bunday email bilan akkaunt topilmadi."}, status=status.HTTP_404_NOT_FOUND)
 
-        return Response({'detail': 'If this email exists, reset instructions have been sent.'})
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        reset_link = f"{settings.FRONTEND_URL}/reset-password?uid={uid}&token={token}"
+        text_body = f'Parolni tiklash uchun havola: {reset_link}'
+        html_body = render_to_string('emails/reset_password.html', {'reset_link': reset_link, 'user': user})
+        Thread(
+            target=_send_reset_email,
+            kwargs={
+                'recipient_email': user.email,
+                'text_body': text_body,
+                'html_body': html_body,
+            },
+            daemon=True,
+        ).start()
+
+        return Response({'detail': 'Reset link yuborildi.'})
 
 
 class ResetPasswordConfirmView(APIView):
