@@ -137,15 +137,25 @@ SIMPLE_JWT = {
 }
 
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@vocabtrainer.local')
+_default_from_email = os.getenv('DEFAULT_FROM_EMAIL', '').strip()
 
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = os.getenv('EMAIL_HOST', '')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '').strip()
+EMAIL_HOST_PASSWORD = ''.join(os.getenv('EMAIL_HOST_PASSWORD', '').split())
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False').lower() == 'true'
 EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '10'))
+
+# Gmail app passwords are often copied with spaces; sanitize and fallback sender.
+DEFAULT_FROM_EMAIL = _default_from_email or EMAIL_HOST_USER or 'noreply@vocabtrainer.local'
+if _default_from_email.lower() in {'your_email@gmail.com', 'noreply@vocabtrainer.local'} and EMAIL_HOST_USER:
+    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Avoid invalid transport config where both flags are enabled.
+if EMAIL_USE_SSL:
+    EMAIL_USE_TLS = False
 
 cors_values = [v.strip() for v in os.getenv('CORS_ALLOWED_ORIGINS', FRONTEND_URL).split(',') if v.strip()]
 CORS_ALLOWED_ORIGINS = cors_values

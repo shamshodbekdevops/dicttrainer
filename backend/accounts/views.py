@@ -131,7 +131,7 @@ class ForgotPasswordView(APIView):
         except Exception:
             logger.exception('Failed to send reset password email.')
             return Response(
-                {'detail': 'Email yuborilmadi. SMTP sozlamasi yoki App Password xato bo‘lishi mumkin.'},
+                {'detail': 'Email yuborilmadi. EMAIL_* qiymatlari va Gmail App Passwordni (bo‘shliqsiz) tekshiring.'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
