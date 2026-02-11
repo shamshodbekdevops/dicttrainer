@@ -1,4 +1,5 @@
 import logging
+from threading import Thread
 
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
@@ -23,6 +24,20 @@ from .serializers import (
 from .throttles import ForgotPasswordRateThrottle, LoginRateThrottle, RegisterRateThrottle, ResetPasswordRateThrottle
 
 logger = logging.getLogger(__name__)
+
+
+def _send_reset_email(recipient_email: str, text_body: str, html_body: str) -> None:
+    try:
+        send_mail(
+            subject='VocabTrainer password reset',
+            message=text_body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[recipient_email],
+            fail_silently=False,
+            html_message=html_body,
+        )
+    except Exception:
+        logger.exception('Failed to send reset password email.')
 
 
 class RegisterView(APIView):
@@ -101,21 +116,15 @@ class ForgotPasswordView(APIView):
             reset_link = f"{settings.FRONTEND_URL}/reset-password?uid={uid}&token={token}"
             text_body = f'Parolni tiklash uchun havola: {reset_link}'
             html_body = render_to_string('emails/reset_password.html', {'reset_link': reset_link, 'user': user})
-            try:
-                send_mail(
-                    subject='VocabTrainer password reset',
-                    message=text_body,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[user.email],
-                    fail_silently=False,
-                    html_message=html_body,
-                )
-            except Exception:
-                logger.exception('Failed to send reset password email.')
-                return Response(
-                    {'detail': 'Email yuborishda xatolik. SMTP sozlamasini va App Passwordni tekshiring.'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
+            Thread(
+                target=_send_reset_email,
+                kwargs={
+                    'recipient_email': user.email,
+                    'text_body': text_body,
+                    'html_body': html_body,
+                },
+                daemon=True,
+            ).start()
 
         return Response({'detail': 'If this email exists, reset instructions have been sent.'})
 

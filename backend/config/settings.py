@@ -145,6 +145,7 @@ EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '10'))
 
 cors_values = [v.strip() for v in os.getenv('CORS_ALLOWED_ORIGINS', FRONTEND_URL).split(',') if v.strip()]
 CORS_ALLOWED_ORIGINS = cors_values
