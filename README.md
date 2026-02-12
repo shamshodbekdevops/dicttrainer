@@ -3,6 +3,13 @@
 DictTrainer is a full-stack vocabulary learning platform built with Django REST Framework and React.
 Users create their own English-Uzbek dictionary, take randomized tests, review mistakes, and track results.
 
+## Live Demo (Full Stack on Railway)
+- App (Frontend): `https://fronted-production-2dcf.up.railway.app/`
+- API (Backend): `https://bakcend-production.up.railway.app`
+- Database: Railway PostgreSQL (private service, not publicly exposed)
+
+This demo is not frontend-only. The deployed app is connected to the live Django API and PostgreSQL database.
+
 ## Highlights
 - User-isolated data model (each user sees only their own words)
 - JWT authentication (register, login, logout)
@@ -34,11 +41,11 @@ frontend/
 ```
 
 ## Security Baseline
-Implemented security controls include:
+Implemented and available security controls include:
 - Owner-only query scoping for word data
 - Object-level owner permissions for update/delete
-- API throttling for anonymous, user, and auth endpoints
-- Login brute-force lockout (IP + identifier based)
+- API throttling modules for anonymous/user/auth endpoints
+- Login brute-force protection module (IP + identifier based)
 - Generic 500 error responses to reduce information leakage
 - Superuser-only admin access for sensitive user visibility
 - Secure cookie and header configuration options via environment variables
@@ -118,6 +125,14 @@ Key values:
 - Restrict CORS/CSRF origins to real domains
 - Use managed PostgreSQL and persistent cache (Redis recommended)
 - Run behind reverse proxy (Nginx/Caddy) with TLS
+
+## GitHub Presentation Checklist
+To make the repository profile-ready:
+- Add app URL to GitHub repo `About -> Website`
+- Keep `README` demo links updated when domains change
+- Never commit `.env` and secrets (App Password, tokens, private keys)
+- Keep deployment steps reproducible (`backend/.env.example`, `frontend/.env.example`)
+- Use clear commit history with focused messages
 
 ## Current Scope
 MVP is complete for:
